@@ -1,5 +1,5 @@
 ---
-- name: Install and start docker.io
+- name: Install and start Docker from the official repository
   hosts: all
   become: yes
 
@@ -8,9 +8,28 @@
       apt:
         update_cache: yes
 
-    - name: Install docker.io package
+    - name: Install required packages
       apt:
-        name: docker.io
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+        state: present
+
+    - name: Add Docker's official GPG key
+      shell: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+
+    - name: Add Docker's stable repository
+      shell: add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+
+    - name: Update apt cache again after adding Docker repository
+      apt:
+        update_cache: yes
+
+    - name: Install docker-ce
+      apt:
+        name: docker-ce
         state: present
 
     - name: Ensure docker service is started and enabled
